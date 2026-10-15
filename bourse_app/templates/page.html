@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — بورس‌یار{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ asset('lists.css') }}">
+{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>{{ title }}</h1>
+  {% if company %}<p class="hero-co">{{ company }}</p>{% endif %}
+  {% if symbol %}
+  <div class="hero-acts" id="sym-acts" data-symbol="{{ symbol }}">
+    <a class="hero-btn dark" href="/?symbol={{ symbol | urlencode }}#monthly">عملکرد ماهانه</a>
+    <a class="hero-btn dark" href="/?symbol={{ symbol | urlencode }}#estimate">برآورد سود</a>
+    <button type="button" class="hero-btn" id="sym-watch"></button>
+    <a class="hero-btn" href="/portfolio?symbol={{ symbol | urlencode }}">ثبت خرید در پرتفوی</a>
+    <a class="hero-btn" href="https://codal.ir/ReportList.aspx?search&Symbol={{ symbol | urlencode }}" target="_blank" rel="noopener">اطلاعیه‌های کدال</a>
+  </div>
+  <div class="price-card" id="sym-price"></div>
+  <div class="price-bar" id="price-bar"></div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+{% if symbol %}
+<script>
+(function () {
+  const box = document.getElementById("sym-acts"), sym = box.dataset.symbol;
+  const btn = document.getElementById("sym-watch");
+  let on = false;
+  const paint = () => {
+    btn.innerHTML = Bourse.ICONS.star + (on ? "در واچ‌لیست" : "افزودن به واچ‌لیست");
+    btn.classList.toggle("on", on);
+  };
+  const { faNum, faDigits, signedPct } = Bourse;
+
+  function paintPrice(p, market) {
+    const el = document.getElementById("sym-price");
+    Bourse.priceBar(document.getElementById("price-bar"), market);
+    if (!p) {
+      el.innerHTML = `<div class="pc-empty">قیمت این نماد در دیده‌بان TSETMC پیدا نشد${market && market.updated_at ? "" : " (قیمت‌ها هنوز دریافت نشده)"}.</div>`;
+      return;
+    }
+    const cls = p.change > 0 ? "pos" : p.change < 0 ? "neg" : "";
+    const lastChg = p.last && p.yesterday ? (p.last / p.yesterday - 1) * 100 : null;
+    const item = (l, v) => `<div class="pc-item"><span>${l}</span><b>${v}</b></div>`;
+    el.innerHTML = `
+      <div class="pc-main">
+        <span class="pc-lbl">قیمت پایانی (ریال)</span>
+        <span class="pc-val">${faNum(p.close)}</span>
+        <span class="pc-chg ${cls}" dir="ltr">${signedPct(p.change)} (${p.close - p.yesterday >= 0 ? "+" : "-"}${faNum(Math.abs(p.close - p.yesterday))})</span>
+      </div>
+      <div class="pc-grid">
+        ${item("آخرین معامله", `${faNum(p.last)} <small class="${lastChg >= 0 ? "pos" : "neg"}" dir="ltr">${signedPct(lastChg)}</small>`)}
+        ${item("قیمت دیروز", faNum(p.yesterday))}
+        ${item("بازه‌ی روز", `${faNum(p.low)} – ${faNum(p.high)}`)}
+        ${item("اولین قیمت", faNum(p.first))}
+        ${item("حجم معاملات", faNum(p.volume))}
+        ${item("ارزش معاملات", faNum(p.value / 1e10, 1) + " میلیارد تومان")}
+        ${item("تعداد معاملات", faNum(p.trades))}
+        ${item("EPS / P/E", `${faNum(p.eps)} / ${p.pe ? faNum(p.pe, 1) : "—"}`)}
+        ${item("ساعت آخرین معامله", faDigits(p.time || "—"))}
+      </div>`;
+  }
+
+  async function load() {
+    const [wl, pr] = await Promise.all([
+      Bourse.api("/api/watchlist").catch(() => ({ items: [] })),
+      Bourse.api("/api/price/" + encodeURIComponent(sym)).catch(() => null),
+    ]);
+    on = wl.items.some(w => w.symbol === sym);
+    paint();
+    if (pr) paintPrice(pr.price, pr.market);
+  }
+  btn.addEventListener("click", async () => {
+    try { await Bourse.setWatch(sym, !on); } catch (e) { Bourse.toast(e.message, "err"); }
+  });
+  document.addEventListener("bourse:changed", load);
+  Bourse.withFreshPrices(load);
+})();
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}واچ‌لیست — بورس‌یار{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ asset('home.css') }}">
+<link rel="stylesheet" href="{{ asset('lists.css') }}">
+{% endblock %}
+{% block content %}
+
+<div class="home">
+  <div class="pane-head">
+    <div class="m-title">
+      <h1>واچ‌لیست</h1>
+      <div class="sub">نمادهایی که دنبال می‌کنید، با آخرین فروش ماهانه از گزارش‌های کدال</div>
+    </div>
+    <form class="add-bar" id="watch-form">
+      <input class="inp" id="watch-input" placeholder="نماد یا نام شرکت…">
+      <button class="btn" type="submit">افزودن به واچ‌لیست</button>
+    </form>
+  </div>
+
+  <div class="price-bar" id="price-bar"></div>
+  <div class="box" id="watch-box"></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ asset('watchlist.js') }}"></script>{% endblock %}

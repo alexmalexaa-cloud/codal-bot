@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}رتبه‌بندی رشد سود — بورس‌یار{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ asset('home.css') }}">
+<link rel="stylesheet" href="{{ asset('lists.css') }}">
+{% endblock %}
+{% block content %}
+
+<div class="home">
+  <div class="pane-head">
+    <div class="m-title">
+      <div class="eyebrow">جستجوی نماد بر اساس آخرین گزارش کدال</div>
+      <h1>رتبه‌بندی رشد سود خالص</h1>
+      <div class="sub">آخرین صورت سود و زیان (غیرتلفیقی) هر شرکت در کدال — ۳، ۶، ۹ یا ۱۲ ماهه — با سه پارامتر رشد سنجیده می‌شود</div>
+    </div>
+  </div>
+
+  <!-- وضعیت داده‌ها و بررسی گزارش‌های جدید -->
+  <div class="scan-bar" id="scan-bar"></div>
+
+  <!-- روش رتبه‌بندی -->
+  <details class="box method">
+    <summary><h2>روش رتبه‌بندی</h2><span class="sub">سه پارامتر و امتیاز ترکیبی</span></summary>
+    <div class="method-grid">
+      <div><b>۱. رشد نسبت به مدت مشابه</b>
+        <p>سود خالص دوره‌ی گزارش (۳، ۶، ۹ یا ۱۲ ماهه) نسبت به همان دوره‌ی سال قبل — ستون تجدید ارائه‌شده‌ی خود گزارش.</p></div>
+      <div><b>۲. رشد فصل آخر</b>
+        <p>فصل آخر = دوره‌ی جاری − دوره‌ی قبلی همان سال (مثلاً ۹ ماهه − ۶ ماهه). دو مقایسه: با فصل مشابه سال قبل و با فصل قبلِ همان سال
+        (برای گزارش ۳ ماهه، فصل قبل = فصل چهارم سال قبل). امتیاز این پارامتر میانگین دو مقایسه است.</p></div>
+      <div><b>۳. درصد تحقق سود سال قبل</b>
+        <p>سود خالص دوره ÷ سود خالص کل سال مالی قبل. برای مقایسه‌ی منصفانه‌ی گزارش‌های ۳ تا ۱۲ ماهه، امتیاز با «تحقق نسبت به زمان سپری‌شده»
+        حساب می‌شود (مثلاً ۶۰٪ در ۶ ماه = ۱۲۰٪ سرعت). خط عمودی روی نوار، سهم زمانی است.</p></div>
+      <div><b>امتیاز ترکیبی (۰ تا ۱۰۰)</b>
+        <p>هر معیار به صدک میان شرکت‌های رتبه‌بندی‌شده تبدیل و سه پارامتر با وزن برابر میانگین می‌شوند (پارامترِ بدون داده کنار می‌رود).
+        رشد با پایه‌ی منفی = (جاری − پایه) ÷ |پایه|. گزارش‌های قدیمی‌تر از ۱۲ ماه رتبه نمی‌گیرند.</p></div>
+    </div>
+  </details>
+
+  <div class="box">
+    <div class="box-head">
+      <div class="filters">
+        <label class="filter-search">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="f-q" placeholder="جستجوی نماد یا شرکت…" autocomplete="off">
+        </label>
+        <div class="seg" id="f-months">
+          <button type="button" data-m="0" aria-pressed="true">همه</button>
+          <button type="button" data-m="3" aria-pressed="false">۳ ماهه</button>
+          <button type="button" data-m="6" aria-pressed="false">۶ ماهه</button>
+          <button type="button" data-m="9" aria-pressed="false">۹ ماهه</button>
+          <button type="button" data-m="12" aria-pressed="false">سالانه</button>
+        </div>
+        <label class="check"><input type="checkbox" id="f-all"> نمایش شرکت‌های بدون رتبه</label>
+      </div>
+      <div class="legend"><span>سود: میلیارد تومان</span><span class="badge outline">کدال</span></div>
+    </div>
+    <div id="scr-table"></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ asset('screener.js') }}"></script>{% endblock %}

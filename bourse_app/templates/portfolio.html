@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}پرتفوی‌ها — بورس‌یار{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ asset('home.css') }}">
+<link rel="stylesheet" href="{{ asset('lists.css') }}">
+{% endblock %}
+{% block content %}
+
+<div class="home">
+  <div class="pane-head">
+    <div class="m-title">
+      <div class="eyebrow" id="pf-eyebrow">مدیریت پرتفوی مشتریان</div>
+      <h1 id="pf-title">پرتفوی‌ها</h1>
+      <div class="sub" id="pf-sub">قیمت‌ها به ریال؛ بهای تمام‌شده به روش میانگین موزون (با کارمزد)</div>
+    </div>
+    <div class="pf-head-acts" id="pf-head-acts"></div>
+  </div>
+
+  <!-- انتخاب پرتفوی: همه‌ی مشتری‌ها / هر مشتری / مشتری جدید -->
+  <nav class="pf-tabs" id="pf-tabs" aria-label="پرتفوی مشتریان"></nav>
+
+  <div class="price-bar" id="price-bar"></div>
+
+  <!-- ===== نمای کلی همه‌ی مشتری‌ها ===== -->
+  <section id="view-all" class="pf-view" hidden>
+    <div class="kpis" id="all-kpis"></div>
+    <div class="box" id="all-clients"></div>
+    <div class="box" id="all-exposure"></div>
+  </section>
+
+  <!-- ===== یک پرتفوی ===== -->
+  <section id="view-one" class="pf-view" hidden>
+    <div class="kpis" id="pf-kpis"></div>
+
+    <div class="box">
+      <div class="box-head">
+        <div><h2>ثبت معامله</h2><div class="sub" id="pf-form-sub">خرید یا فروش سهم؛ تاریخ شمسی</div></div>
+        <div class="seg" id="pf-side">
+          <button type="button" data-side="buy" aria-pressed="true">خرید</button>
+          <button type="button" data-side="sell" aria-pressed="false">فروش</button>
+        </div>
+      </div>
+      <form class="trade-form" id="pf-form">
+        <label class="field">نماد<input class="inp" name="symbol" id="pf-symbol" placeholder="جستجوی نماد…" required></label>
+        <label class="field">تعداد سهم<input class="inp num" name="qty" inputmode="decimal" required></label>
+        <label class="field">قیمت هر سهم (ریال)<input class="inp num" name="price" inputmode="decimal"></label>
+        <label class="field">کارمزد کل (ریال)<input class="inp num" name="fee" inputmode="decimal" placeholder="۰"></label>
+        <label class="field">تاریخ<input class="inp num" name="date" placeholder="۱۴۰۵/۰۷/۱۵"></label>
+        <label class="field wide">یادداشت<input class="inp" name="note" placeholder="اختیاری"></label>
+        <div class="trade-total" id="pf-total"></div>
+        <button class="btn" type="submit" id="pf-submit">ثبت خرید</button>
+      </form>
+    </div>
+
+    <div class="box" id="pf-positions"></div>
+    <div class="box" id="pf-trades"></div>
+  </section>
+
+  <div class="source">ارزش روز با قیمت پایانی TSETMC؛ سود و زیان باز بدون کارمزد فروش احتمالی. داده‌ها در data/user.db ذخیره می‌شوند.</div>
+</div>
+
+<!-- ===== پنجره‌ی مشتری جدید / ویرایش ===== -->
+<dialog class="pf-dialog" id="pf-dialog">
+  <form method="dialog" id="pf-dialog-form">
+    <h2 id="pf-dialog-title">مشتری جدید</h2>
+    <label class="field">نام مشتری<input class="inp" name="name" maxlength="80" required placeholder="مثلاً علی رضایی"></label>
+    <label class="field">یادداشت<input class="inp" name="note" placeholder="کد معاملاتی، تلفن، نوع قرارداد… (اختیاری)"></label>
+    <div class="dialog-acts">
+      <button class="btn ghost" type="button" value="cancel" id="pf-dialog-cancel">انصراف</button>
+      <button class="btn" type="submit" id="pf-dialog-ok">ساخت پرتفوی</button>
+    </div>
+  </form>
+</dialog>
+{% endblock %}
+{% block scripts %}<script src="{{ asset('portfolio.js') }}"></script>{% endblock %}
