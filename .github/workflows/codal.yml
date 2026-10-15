@@ -11,7 +11,6 @@ on:
         description: 'شناسه چت مقصد'
         required: false
 
-  # اجرای خودکار روزهای معاملاتی (شنبه تا چهارشنبه ساعت ۱۰ صبح ایران)
   schedule:
     - cron: "30 6 * * 0-3,6"
 
@@ -30,7 +29,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       - name: Install Dependencies and Persian Fonts
         run: |
@@ -38,11 +36,8 @@ jobs:
           sudo apt-get install -y fonts-vazirmatn fonts-noto-core
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 lxml pyTelegramBotAPI
-          if [ -d "bourse_app" ] && [ -f "bourse_app/requirements.txt" ]; then
-            pip install -r bourse_app/requirements.txt
-          elif [ -f "requirements.txt" ]; then
-            pip install -r requirements.txt
-          fi
+          if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
+          if [ -f "bourse_app/requirements.txt" ]; then pip install -r bourse_app/requirements.txt; fi
 
       - name: Setup Chrome for Screenshots
         run: |
@@ -53,12 +48,10 @@ jobs:
         env:
           INPUT_SYMBOLS: ${{ github.event.inputs.symbols }}
         run: |
-          # رفتن به پوشه فایل‌ها در صورت وجود پوشه bourse_app
           [ -d "bourse_app" ] && cd bourse_app
           mkdir -p reports
           SYMBOLS="${INPUT_SYMBOLS:-فولاد فملی شپنا کچاد فخوز}"
           
-          # اجرای اسکریپت ماهانه کدال
           if [ -f "scrape.py" ]; then
             python scrape.py $SYMBOLS || true
           fi
@@ -73,7 +66,6 @@ jobs:
           INPUT_CHAT_ID: ${{ github.event.inputs.chat_id }}
         run: |
           TARGET_CHAT="${INPUT_CHAT_ID:-$DEFAULT_CHAT_ID}"
-          # جستجو و ارسال عکس‌های تولید شده
           find . -type f -name "*.png" | while read -r file; do
             echo "Sending $file..."
             curl --fail-with-body --silent --show-error \
