@@ -1,1 +1,54 @@
-python codal_monthly.py --demo --png --out reports
+name: Codal Report Bot
+
+on:
+  workflow_dispatch:
+    inputs:
+      symbols:
+        description: 'نمادهای درخواستی'
+        required: false
+        default: 'فولاد'
+
+permissions:
+  contents: read
+
+jobs:
+  demo-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-vazirmatn fonts-noto-core
+
+      - name: Setup Chrome
+        run: |
+          sudo ln -sf $(which google-chrome-stable) /usr/bin/chromium || true
+          sudo ln -sf $(which google-chrome-stable) /usr/bin/chromium-browser || true
+
+      - name: Run Demo
+        run: |
+          mkdir -p reports
+          python codal_monthly.py --demo --png --out reports
+
+      - name: Send to Telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          DEFAULT_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          shopt -s nullglob
+          for file in reports/*.png; do
+            echo "Sending $file..."
+            curl --fail-with-body --silent --show-error \
+              "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto" \
+              -F "chat_id=${DEFAULT_CHAT_ID}" \
+              -F "photo=@${file}" \
+              -F "caption=📊 گزارش تستی دمو"
+          done
